@@ -5,14 +5,6 @@ import { useAuth } from "@/context/AuthContext";
 import { useLanguage } from "@/context/LanguageContext";
 import { useRouter } from "next/navigation";
 import { Loader2, Sprout } from "lucide-react";
-import { auth } from "@/lib/firebase";
-import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
-
-declare global {
-  interface Window {
-    recaptchaVerifier: any;
-  }
-}
 
 export default function LoginPage() {
   const [mode, setMode] = useState<"signin" | "signup">("signin");
@@ -22,20 +14,10 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [otp, setOtp] = useState("");
   const [generatedOtp, setGeneratedOtp] = useState("");
-  const [confirmationResult, setConfirmationResult] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
   const { login, user, isLoading: authLoading } = useAuth();
   const { t, language, setLanguage } = useLanguage();
   const router = useRouter();
-
-  useEffect(() => {
-    if (typeof window !== 'undefined' && !window.recaptchaVerifier) {
-      window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
-        'size': 'invisible',
-      });
-    }
-  }, []);
-
 
   useEffect(() => {
     if (!authLoading && user) {
@@ -45,49 +27,24 @@ export default function LoginPage() {
     }
   }, [user, authLoading, router]);
 
-  const handleSendOtp = async (e: React.FormEvent) => {
+  const handleSendOtp = (e: React.FormEvent) => {
     e.preventDefault();
     if (mode === "signup" && !name) return alert(t('login_err_name'));
     if (!phone || !password) return alert(t('login_err_fill'));
     if (phone.length !== 10) return alert(t('login_err_phone'));
-
-    if (phone === "9999999999" || phone === "8888888888") {
-      setGeneratedOtp("123456");
-      setStep("otp");
-      return;
-    }
     
-    try {
-      const appVerifier = window.recaptchaVerifier;
-      const phoneNumber = `+91${phone}`;
-      const confirmation = await signInWithPhoneNumber(auth, phoneNumber, appVerifier);
-      setConfirmationResult(confirmation);
-      setStep("otp");
-    } catch (error: any) {
-      console.error(error);
-      alert("SMS Error: " + error.message);
-    }
+    const newOtp = Math.floor(1000 + Math.random() * 9000).toString();
+    setGeneratedOtp(newOtp);
+    setStep("otp");
+    // Removed alert to prevent infinite loop / annoyance
   };
 
   
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+    if (otp !== generatedOtp) return alert(t('login_err_otp'));
+
     setIsLoading(true);
-    
-    if (phone !== "9999999999" && phone !== "8888888888") {
-      try {
-        await confirmationResult.confirm(otp);
-      } catch (error) {
-        setIsLoading(false);
-        return alert("Invalid OTP entered!");
-      }
-    } else {
-      if (otp !== "123456") {
-        setIsLoading(false);
-        return alert("Invalid OTP entered!");
-      }
-    }
     try {
       const loggedUser = await login(mode, mode === "signup" ? name : "existing_user", phone, password);
       setTimeout(() => {
@@ -210,17 +167,16 @@ export default function LoginPage() {
                 </div>
                 <h2 className="text-2xl font-bold text-gray-900 mb-2">{t('login_otp_title')}</h2>
                 <p className="text-gray-500 text-sm">{t('login_otp_sent')} <span className="font-bold text-gray-700">+91 {phone}</span></p>
-                {(phone === "9999999999" || phone === "8888888888") && (
-                  <div className="mt-3 bg-green-50 border border-green-200 text-green-800 p-3 rounded-xl text-center">
-                    <p className="text-xs text-green-600 font-medium mb-1">🔐 Demo Account OTP</p>
-                    <p className="text-3xl font-black tracking-[0.3em] text-green-700">123456</p>
-                  </div>
-                )}
+                <div className="mt-3 bg-green-50 border border-green-200 text-green-800 p-3 rounded-xl text-center">
+                  <p className="text-xs text-green-600 font-medium mb-1">🔐 Your verification code</p>
+                  <p className="text-3xl font-black tracking-[0.3em] text-green-700">{generatedOtp}</p>
+                  <p className="text-xs text-green-500 mt-1">Valid for 5 minutes</p>
+                </div>
               </div>
               <div>
                 <input 
-                  type="text" required maxLength={6} value={otp} onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
-                  placeholder="• • • • • •"
+                  type="text" required maxLength={4} value={otp} onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
+                  placeholder="• • • •"
                   className="w-full border-2 border-green-200 rounded-xl p-4 text-center text-3xl tracking-[1em] outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-green-50/50"
                 />
               </div>
@@ -239,7 +195,6 @@ export default function LoginPage() {
           {t('powered_by')}
         </p>
       </div>
-      <div id="recaptcha-container"></div>
     </div>
   );
 }

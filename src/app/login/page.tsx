@@ -70,6 +70,19 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen relative flex flex-col items-center justify-center p-4 overflow-hidden">
+      
+      {/* Language Selector Top Right */}
+      <div className="absolute top-4 right-4 z-50">
+        <select 
+          value={language}
+          onChange={(e) => setLanguage(e.target.value as any)}
+          className="bg-white/20 backdrop-blur-md border border-white/40 text-white text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block p-2 outline-none cursor-pointer"
+        >
+          <option value="gu" className="text-gray-900">ગુજરાતી</option>
+          <option value="hi" className="text-gray-900">हिंदी</option>
+          <option value="en" className="text-gray-900">English</option>
+        </select>
+      </div>
       {/* Background Image */}
       <div 
         className="absolute inset-0 bg-cover bg-center"
@@ -87,8 +100,8 @@ export default function LoginPage() {
               <Sprout size={16} className="text-white" />
             </div>
           </div>
-          <h1 className="text-4xl font-bold text-white drop-shadow-lg">Krushi Sarathi</h1>
-          <p className="text-green-100 mt-2 text-lg drop-shadow">Your Digital Farmer Friend 🌾</p>
+          <h1 className="text-4xl font-bold text-white drop-shadow-lg">{t('login_title') || 'Krushi Sarathi'}</h1>
+          <p className="text-green-100 mt-2 text-lg drop-shadow">{t('login_subtitle') || 'Your Digital Farmer Friend'} 🌾</p>
         </div>
 
         {/* Card */}
@@ -100,13 +113,13 @@ export default function LoginPage() {
                 className={`py-3 text-base font-bold w-1/2 rounded-xl transition-all ${mode === "signin" ? "bg-green-600 text-white shadow-md" : "text-gray-500 hover:text-gray-700"}`}
                 onClick={() => setMode("signin")}
               >
-                Sign In
+                {t('login_tab_signin') || 'Sign In'}
               </button>
               <button 
                 className={`py-3 text-base font-bold w-1/2 rounded-xl transition-all ${mode === "signup" ? "bg-green-600 text-white shadow-md" : "text-gray-500 hover:text-gray-700"}`}
                 onClick={() => setMode("signup")}
               >
-                Create Account
+                {t('login_tab_signup') || 'Create Account'}
               </button>
             </div>
           )}

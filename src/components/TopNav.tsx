@@ -31,7 +31,8 @@ export default function TopNav() {
       };
       fetchAlerts();
       const interval = setInterval(fetchAlerts, 10000);
-      return () => clearInterval(interval);
+      return (
+    <>) => clearInterval(interval);
     }
   }, [user]);
 
@@ -82,7 +83,7 @@ export default function TopNav() {
             <img src="/logo.jpg" alt="Krushi Sarathi Logo" className="w-10 h-10 object-contain rounded-full border border-gray-100 shadow-sm" />
             <span className="text-2xl font-bold text-green-700 hidden sm:block">Krushi Sarathi</span>
           </Link>
-          <div className="flex space-x-2 md:space-x-8 shrink-0 h-full overflow-x-auto no-scrollbar flex-1">
+          <div className="hidden md:flex space-x-8 shrink-0 h-full flex-1 justify-center">
             {links.map((link) => {
               const isActive = pathname === link.href;
               const Icon = link.icon;
@@ -191,5 +192,26 @@ export default function TopNav() {
         </div>
       </div>
     </nav>
+
+    {/* Mobile Bottom Navigation */}
+    <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50 flex justify-around items-center h-16 px-2 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] pb-safe">
+      {links.map((link) => {
+        const isActive = pathname === link.href;
+        const Icon = link.icon;
+        return (
+          <Link
+            key={link.href}
+            href={link.href}
+            className={`flex flex-col items-center justify-center w-full h-full space-y-1 ${
+              isActive ? 'text-green-600' : 'text-gray-500 hover:text-green-500'
+            }`}
+          >
+            <Icon size={22} className={isActive ? 'animate-bounce' : ''} style={{ animationIterationCount: 1 }} />
+            <span className="text-[10px] font-bold text-center leading-tight truncate w-full px-1">{link.label}</span>
+          </Link>
+        );
+      })}
+    </div>
+    </>
   );
 }

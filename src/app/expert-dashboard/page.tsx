@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
+import { useLanguage } from "@/context/LanguageContext";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { CheckCircle, AlertTriangle, MapPin, Edit3, FlaskConical, Megaphone } from "lucide-react";
@@ -9,6 +10,7 @@ import MapComponent from "@/components/MapComponent";
 
 export default function ExpertDashboard() {
   const { user, isLoading } = useAuth();
+  const { t } = useLanguage();
   const router = useRouter();
   const [queue, setQueue] = useState<any[]>([]);
   const [bulletin, setBulletin] = useState("");
@@ -75,12 +77,12 @@ export default function ExpertDashboard() {
 
       <div className="max-w-7xl mx-auto px-4 mt-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-4">
-          <h2 className="text-xl font-bold text-gray-800">Pending Validations ({queue.length})</h2>
+          <h2 className="text-xl font-bold text-gray-800">{t('exp_pending') || 'Pending Validations'} ({queue.length})</h2>
           
           {queue.length === 0 ? (
              <div className="bg-white p-8 rounded-2xl text-center shadow-sm">
                <CheckCircle className="mx-auto text-green-400 mb-2" size={48} />
-               <p className="text-gray-500 font-medium">Inbox Zero! No pending cases.</p>
+               <p className="text-gray-500 font-medium">{t('exp_zero') || 'Inbox Zero! No pending cases.'}</p>
              </div>
           ) : queue.map((item: any) => (
             <div key={item.id} className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex flex-col gap-4">
@@ -117,20 +119,20 @@ export default function ExpertDashboard() {
                
                <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                  <button onClick={() => handleAction(item.id, 'validated')} className="flex items-center justify-center gap-1 bg-green-100 text-green-700 font-bold p-2 rounded-lg hover:bg-green-200 text-sm">
-                   <CheckCircle size={16}/> Confirm
+                   <CheckCircle size={16}/> {t('exp_confirm') || 'Confirm'}
                  </button>
                  <button onClick={() => {
                    const corrected = prompt("Enter correct disease name:");
                    if(corrected) handleAction(item.id, 'validated', { ai_disease: corrected, officer_notes: "Corrected AI mistake" });
                  }} className="flex items-center justify-center gap-1 bg-blue-100 text-blue-700 font-bold p-2 rounded-lg hover:bg-blue-200 text-sm">
-                   <Edit3 size={16}/> Correct
+                   <Edit3 size={16}/> {t('exp_correct') || 'Correct'}
                  </button>
                  <button onClick={() => {
                    const note = (document.getElementById(`note-${item.id}`) as HTMLTextAreaElement).value;
                    handleAction(item.id, 'rejected', { officer_notes: note || "Lab test required", followup_status: "lab_referral" });
                    alert("Referral to KVK Lab generated for farmer.");
                  }} className="flex items-center justify-center gap-1 bg-purple-100 text-purple-700 font-bold p-2 rounded-lg hover:bg-purple-200 text-sm">
-                   <FlaskConical size={16}/> Req Lab
+                   <FlaskConical size={16}/> {t('exp_reqlab') || 'Req Lab'}
                  </button>
                  <button onClick={() => handleAction(item.id, 'rejected')} className="flex items-center justify-center gap-1 bg-gray-100 text-gray-700 font-bold p-2 rounded-lg hover:bg-gray-200 text-sm">
                    Escalate
@@ -142,7 +144,7 @@ export default function ExpertDashboard() {
 
         <div className="space-y-6">
           <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-            <h3 className="font-bold text-gray-800 mb-4 flex items-center gap-2"><Megaphone size={18} className="text-blue-500" /> Compose Bulletin</h3>
+            <h3 className="font-bold text-gray-800 mb-4 flex items-center gap-2"><Megaphone size={18} className="text-blue-500" /> {t('exp_compose') || 'Compose Bulletin'}</h3>
             <form onSubmit={handleSendBulletin} className="space-y-3">
                <textarea 
                  required 
@@ -151,12 +153,12 @@ export default function ExpertDashboard() {
                  placeholder="E.g. Warning: Pink Bollworm spotted in your zone. Please spray Neem Oil." 
                  className="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 h-24"
                ></textarea>
-               <button type="submit" className="w-full bg-blue-600 text-white font-bold p-3 rounded-xl hover:bg-blue-700">Push Alert to Farmers</button>
+               <button type="submit" className="w-full bg-blue-600 text-white font-bold p-3 rounded-xl hover:bg-blue-700">{t('exp_push') || 'Push Alert to Farmers'}</button>
             </form>
           </div>
 
           <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-            <h3 className="font-bold text-gray-800 mb-4 flex items-center gap-2"><AlertTriangle size={18} className="text-orange-500" /> Zone Hotspots</h3>
+            <h3 className="font-bold text-gray-800 mb-4 flex items-center gap-2"><AlertTriangle size={18} className="text-orange-500" /> {t('exp_hotspots') || 'Zone Hotspots'}</h3>
             <div className="h-48 rounded-xl overflow-hidden">
                <MapComponent />
             </div>

@@ -57,7 +57,12 @@ export default function VoiceAssistant() {
 
       // 3. Play TTS response (Detect language roughly for TTS)
       const isEnglish = /^[a-zA-Z\s.,!?]+$/.test(data.message.substring(0, 10));
-      const ttsLang = isEnglish ? 'en' : language;
+      const isHindi = /[\u0900-\u097F]/.test(data.message);
+      const isGujarati = /[\u0A80-\u0AFF]/.test(data.message);
+      let ttsLang = language;
+      if (isEnglish) ttsLang = 'en';
+      else if (isHindi) ttsLang = 'hi';
+      else if (isGujarati) ttsLang = 'gu';
       
       const audioUrl = `/api/tts?text=${encodeURIComponent(data.message)}&lang=${ttsLang}`;
       

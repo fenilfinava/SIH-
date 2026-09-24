@@ -167,8 +167,10 @@ export default function LoginPage() {
                 </div>
                 <h2 className="text-2xl font-bold text-gray-900 mb-2">{t('login_otp_title')}</h2>
                 <p className="text-gray-500 text-sm">{t('login_otp_sent')} <span className="font-bold text-gray-700">+91 {phone}</span></p>
-                <div className="mt-2 bg-yellow-50 border border-yellow-200 text-yellow-800 p-2 rounded-lg text-sm">
-                  <strong>Demo OTP:</strong> {generatedOtp}
+                <div className="mt-3 bg-green-50 border border-green-200 text-green-800 p-3 rounded-xl text-center">
+                  <p className="text-xs text-green-600 font-medium mb-1">🔐 Your verification code</p>
+                  <p className="text-3xl font-black tracking-[0.3em] text-green-700">{generatedOtp}</p>
+                  <p className="text-xs text-green-500 mt-1">Valid for 5 minutes</p>
                 </div>
               </div>
               <div>

@@ -39,6 +39,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = async (mode: 'signin' | 'signup', name: string, phone: string, password?: string) => {
     try {
 
+      // Demo accounts for SIH judging panel
+      const demoAccounts: Record<string, any> = {
+        "admin": { id: "admin-demo-001", name: "Admin", phone: "9999999999", role: "ADMIN", location: "All India", password: "admin123" },
+        "officer": { id: "officer-demo-001", name: "Field Officer", phone: "8888888888", role: "OFFICER", location: "Rajkot", password: "officer123" },
+      };
+      const demoMatch = Object.values(demoAccounts).find((a: any) => a.phone === phone && a.password === password);
+      if (demoMatch) {
+        setUser(demoMatch);
+        localStorage.setItem("krushi_user", JSON.stringify(demoMatch));
+        return demoMatch;
+      }
+
       // Check if it's a locally created mock officer
       const mockOfficers = JSON.parse(localStorage.getItem('mock_officers') || '[]');
       const foundMock = mockOfficers.find((o:any) => o.phone === phone && o.password === password);

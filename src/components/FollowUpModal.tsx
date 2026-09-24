@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { CheckCircle, XCircle, AlertCircle, Loader2 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/context/AuthContext";
+import { useLanguage } from "@/context/LanguageContext";
 
 export default function FollowUpModal() {
   const [showModal, setShowModal] = useState(false);
@@ -14,6 +15,7 @@ export default function FollowUpModal() {
   
   const pathname = usePathname();
   const { user } = useAuth();
+  const { language } = useLanguage();
 
   useEffect(() => {
     if (!user || pathname === '/login') return;
@@ -26,7 +28,7 @@ export default function FollowUpModal() {
         if (myReports.length > 0) {
           const oldReport = myReports.find((d: any) => {
             const days = (new Date().getTime() - new Date(d.created_at).getTime()) / (1000 * 3600 * 24);
-            return days > 7; // older than 7 days (SIH spec: 7-10 day follow-up)
+            return days >= 1; // 1+ day for demo; production: 7 days
           });
           
           if (oldReport) {
@@ -90,16 +92,19 @@ export default function FollowUpModal() {
         
         <div className="p-6">
           <p className="text-gray-700 font-medium text-center mb-6">
-            તમે {daysSince} દિવસ પહેલાં <span className="font-bold text-gray-900">{originalReport.ai_disease}</span> માટે સ્કેન કર્યું હતું. 
-            <br/><br/>
-            શું AI દ્વારા સૂચવેલી સારવાર કામ કરી?
+            {language === 'gu'
+              ? <>તમે {daysSince} દિવસ પહેલાં <span className="font-bold text-gray-900">{originalReport.ai_disease}</span> માટે સ્કેન કર્યું હતું. <br/><br/>શું AI દ્વારા સૂચવેલી સારવાર કામ કરી?</>
+              : language === 'hi'
+              ? <>{daysSince} दिन पहले आपने <span className="font-bold text-gray-900">{originalReport.ai_disease}</span> के लिए स्कैन किया था। <br/><br/>क्या AI द्वारा सुझाया गया उपचार काम आया?</>
+              : <>You scanned for <span className="font-bold text-gray-900">{originalReport.ai_disease}</span> {daysSince} day(s) ago. <br/><br/>Did the AI-recommended treatment work?</>
+            }
           </p>
           <div className="grid grid-cols-2 gap-4">
             <button onClick={handleYes} disabled={loading} className="flex flex-col items-center justify-center p-4 rounded-2xl border-2 border-green-100 bg-green-50 text-green-700 font-bold gap-2">
-              <CheckCircle size={32} /> હા (Yes)
+              <CheckCircle size={32} /> {language === "gu" ? "હા (Yes)" : language === "hi" ? "हाँ (Yes)" : "✅ Yes, It Worked"}
             </button>
             <button onClick={handleNo} disabled={loading} className="flex flex-col items-center justify-center p-4 rounded-2xl border-2 border-red-100 bg-red-50 text-red-700 font-bold gap-2">
-              {loading ? <Loader2 className="animate-spin" size={32} /> : <XCircle size={32} />} ના (No)
+              {loading ? <Loader2 className="animate-spin" size={32} /> : <XCircle size={32} />} {language === "gu" ? "ના (No)" : language === "hi" ? "नहीं (No)" : "❌ No, Still Sick"}
             </button>
           </div>
         </div>

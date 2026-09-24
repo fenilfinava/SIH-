@@ -31,8 +31,7 @@ export default function TopNav() {
       };
       fetchAlerts();
       const interval = setInterval(fetchAlerts, 10000);
-      return (
-    <>) => clearInterval(interval);
+      return () => clearInterval(interval);
     }
   }, [user]);
 
@@ -76,6 +75,7 @@ export default function TopNav() {
   if (pathname === '/login' || pathname === '/onboarding') return null;
 
   return (
+    <>
     <nav className="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-40">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16 gap-4">

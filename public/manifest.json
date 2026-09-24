@@ -1,0 +1,22 @@
+{
+  "name": "Krushi Sarathi",
+  "short_name": "KrushiSarathi",
+  "description": "AI-powered crop disease detection and farming advisory - SIH 2024",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#16a34a",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/logo.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg"
+    },
+    {
+      "src": "/logo.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg"
+    }
+  ]
+}

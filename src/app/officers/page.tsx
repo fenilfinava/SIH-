@@ -27,7 +27,19 @@ export default function OfficersDataPage() {
         
         setAllUsers(users || []);
         setReports(rpts || []);
-        setOfficers((users || []).filter((u: any) => u.role === "OFFICER"));
+        
+        // Include DB officers
+        let dbOfficers = (users || []).filter((u: any) => u.role === "OFFICER");
+        
+        // Add the standard demo officer
+        const demoOfficer = { id: "officer-demo-001", name: "Field Officer (Demo)", phone: "8888888888", role: "OFFICER", location: "Rajkot, Gujarat" };
+        
+        // Check if demo officer is already in DB, if not, prepend it
+        if (!dbOfficers.find((o: any) => o.phone === demoOfficer.phone)) {
+           dbOfficers = [demoOfficer, ...dbOfficers];
+        }
+        
+        setOfficers(dbOfficers);
       } catch(e) {}
     }
     fetchData();

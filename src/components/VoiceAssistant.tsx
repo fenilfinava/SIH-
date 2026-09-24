@@ -4,6 +4,7 @@ import { useState, useRef } from 'react';
 import { Mic, MicOff, Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/context/LanguageContext';
+import { useAuth } from '@/context/AuthContext';
 
 export default function VoiceAssistant() {
   const [isListening, setIsListening] = useState(false);
@@ -13,6 +14,7 @@ export default function VoiceAssistant() {
   const router = useRouter();
 
   const { language } = useLanguage();
+  const { user } = useAuth();
 
   const audioChunksRef = useRef<Blob[]>([]);
 
@@ -135,6 +137,8 @@ export default function VoiceAssistant() {
       startRecording();
     }
   };
+
+  if (!user || user.role !== 'FARMER') return null;
 
   return (
     <div className="fixed bottom-8 right-8 z-50 flex flex-col items-center gap-4">

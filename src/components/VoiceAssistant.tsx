@@ -151,6 +151,7 @@ export default function VoiceAssistant() {
       <button
         onClick={toggleVoice}
         disabled={isProcessing}
+        aria-label="Voice Assistant"
         className={`flex items-center justify-center w-16 h-16 rounded-full shadow-2xl transition-all duration-300 ${
           isListening 
             ? 'bg-red-500 animate-pulse scale-110' 

@@ -179,7 +179,7 @@ export default function TopNav() {
                  <Link href="/profile" className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center text-green-800 font-bold shadow-sm hover:bg-green-200 transition">
                    {user.name.charAt(0).toUpperCase()}
                  </Link>
-                 <button onClick={handleLogout} className="text-red-500 hover:text-red-700 p-2 rounded-full hover:bg-red-50 transition">
+                 <button onClick={handleLogout} aria-label="Logout" className="text-red-500 hover:text-red-700 p-2 rounded-full hover:bg-red-50 transition">
                    <LogOut size={20} />
                  </button>
                </div>

@@ -11,6 +11,12 @@ export default function OfficialDashboard() {
   const { user, isLoading } = useAuth();
   const router = useRouter();
   const [stats, setStats] = useState({ totalFarmers: 0, scansToday: 0, accuracy: 0, coverage: 0 });
+  const [threshold, setThreshold] = useState(80);
+
+  useEffect(() => {
+    const saved = localStorage.getItem('ai_threshold');
+    if (saved) setThreshold(Number(saved));
+  }, []);
   const [officers, setOfficers] = useState<any[]>([]);
   const [allUsers, setAllUsers] = useState<any[]>([]);
   const [reports, setReports] = useState<any[]>([]);
@@ -93,8 +99,17 @@ export default function OfficialDashboard() {
           </div>
           <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col justify-center">
             <label className="text-gray-500 text-xs font-bold uppercase mb-1">AI Threshold Control</label>
-            <input type="range" min="50" max="95" defaultValue="80" className="w-full accent-blue-600" />
-            <span className="text-xs text-center font-bold text-gray-700 mt-1">Flag if &lt; 80%</span>
+            <input 
+              type="range" 
+              min="50" max="95" 
+              value={threshold} 
+              onChange={(e) => {
+                setThreshold(Number(e.target.value));
+                localStorage.setItem('ai_threshold', e.target.value);
+              }}
+              className="w-full accent-blue-600" 
+            />
+            <span className="text-xs text-center font-bold text-gray-700 mt-1">Flag if &lt; {threshold}%</span>
           </div>
         </div>
 

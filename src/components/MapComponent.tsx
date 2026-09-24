@@ -28,7 +28,31 @@ const DISTRICT_COORDS: Record<string, [number, number]> = {
   'bharuch': [21.7051, 72.9959],
   'navsari': [20.9467, 72.9520],
   'vapi': [20.3893, 72.9106],
-  'porbandar': [21.6417, 69.6293]
+  'porbandar': [21.6417, 69.6293],
+  'pune': [18.5204, 73.8567],
+  'nagpur': [21.1458, 79.0882],
+  'nashik': [20.0110, 73.7903],
+  'aurangabad': [19.8762, 75.3433],
+  'jaipur': [26.9124, 75.7873],
+  'jodhpur': [26.2389, 73.0243],
+  'udaipur': [24.5854, 73.7125],
+  'kota': [25.2138, 75.8648],
+  'indore': [22.7196, 75.8577],
+  'bhopal': [23.2599, 77.4126],
+  'jabalpur': [23.1815, 79.9864],
+  'gwalior': [26.2183, 78.1828],
+  'lucknow': [26.8467, 80.9462],
+  'kanpur': [26.4499, 80.3319],
+  'agra': [27.1767, 78.0081],
+  'varanasi': [25.3176, 82.9739],
+  'bengaluru': [12.9716, 77.5946],
+  'mysuru': [12.2958, 76.6394],
+  'hubballi': [15.3647, 75.1240],
+  'mangaluru': [12.9141, 74.8560],
+  'chennai': [13.0827, 80.2707],
+  'coimbatore': [11.0168, 76.9558],
+  'madurai': [9.9252, 78.1198],
+  'salem': [11.6643, 78.1460]
 };
 
 export default function MapComponent({ fullScreen = false }) {
@@ -102,20 +126,33 @@ export default function MapComponent({ fullScreen = false }) {
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
-        {data.map((point: any, index: number) => (
-          <CircleMarker key={index} center={[point.lat, point.lng]} radius={15} pathOptions={{ color: 'red', fillColor: '#ef4444', fillOpacity: 0.6, weight: 2 }}>
-            <Popup>
-              <div className="font-sans">
-                <h3 className="font-bold text-lg">{point.ai_disease}</h3>
-                <p className="text-sm text-gray-600">Farmer: {point.farmer_name || 'Unknown'}</p>
-                <p className="text-sm text-gray-600">Location: {point.location_name}</p>
-                <span className={`inline-block mt-2 px-2 py-1 text-xs font-bold rounded-full ${point.status === 'validated' ? 'bg-green-100 text-green-700' : point.status === 'pending' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'}`}>
-                  {point.status.toUpperCase()}
-                </span>
-              </div>
-            </Popup>
-          </CircleMarker>
-        ))}
+        {data.map((point: any, index: number) => {
+          const conf = point.confidence_score || 100;
+          const markerColor = conf < 60 ? 'yellow' : conf <= 80 ? 'orange' : 'red';
+          const fillColor = conf < 60 ? '#facc15' : conf <= 80 ? '#f97316' : '#ef4444';
+          return (
+            <CircleMarker 
+              key={index} 
+              center={[point.lat, point.lng]} 
+              radius={15} 
+              pathOptions={{ color: markerColor, fillColor: fillColor, fillOpacity: 0.6, weight: 2 }}
+            >
+              <Popup>
+                <div className="font-sans">
+                  <h3 className="font-bold text-lg">{point.ai_disease}</h3>
+                  <p className="text-sm text-gray-600">Crop: {point.crop || 'Unknown'}</p>
+                  <p className="text-sm text-gray-600">Farmer: {point.farmer_name || 'Unknown'}</p>
+                  <p className="text-sm text-gray-600">Location: {point.location_name}</p>
+                  <p className="text-sm text-gray-600">Confidence: {point.confidence_score ? `${point.confidence_score}%` : 'N/A'}</p>
+                  {point.created_at && <p className="text-sm text-gray-600">Date: {new Date(point.created_at).toLocaleDateString()}</p>}
+                  <span className={`inline-block mt-2 px-2 py-1 text-xs font-bold rounded-full ${point.status === 'validated' ? 'bg-green-100 text-green-700' : point.status === 'pending' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'}`}>
+                    {point.status?.toUpperCase() || 'UNKNOWN'}
+                  </span>
+                </div>
+              </Popup>
+            </CircleMarker>
+          );
+        })}
       </MapContainer>
     </div>
   );

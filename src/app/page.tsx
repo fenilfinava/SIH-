@@ -53,7 +53,10 @@ export default function Dashboard() {
         try {
           const iot = await supabase.from('iot_sensors').select('*');
           if (iot && iot.length > 0) {
-            setIotData({ moisture: iot[0].soil_moisture, bugs: iot[0].pest_count });
+            setIotData({ 
+              moisture: iot[0].soil_moisture || iot[0].moisture_level, 
+              bugs: iot[0].pest_count || iot[0].bug_count 
+            });
           }
         } catch (e) { /* IoT table may not exist yet */ }
 
@@ -218,6 +221,8 @@ export default function Dashboard() {
   if (authLoading || !user) return <div className="p-8 text-center text-gray-500">Loading...</div>;
 
   const risk = getRiskLevel(weather.rainProb, weather.temp);
+  const riskPercent = Math.min(95, Math.round(weather.rainProb * 0.6 + (weather.temp > 28 ? 20 : 5)));
+  const userCrop = farms.length > 0 ? (farms[0].translated_crop_name || farms[0].crop_name) : 'Aphid/Bollworm';
 
   return (
     <div className="p-4 sm:p-8 max-w-7xl mx-auto space-y-6 pb-24">
@@ -232,7 +237,7 @@ export default function Dashboard() {
             <div>
               <h3 className="font-bold text-lg">⚠️ Proactive Warning: High Risk Detected</h3>
               <p className="text-sm text-orange-50 mt-1 leading-relaxed">
-                Weather patterns ({weather.temp}°C, {weather.rainProb}% Rain Prob) and historical data show a <b>75% chance of Aphid/Bollworm outbreak</b> in your region within 3 days.
+                Weather patterns ({weather.temp}°C, {weather.rainProb}% Rain Prob) and historical data show a <b>{riskPercent}% chance of {userCrop} outbreak</b> in your region within 3 days.
                 <br /><b>Action:</b> Consider a preventive Neem Oil spray today to minimize crop damage before symptoms appear.
               </p>
             </div>
@@ -272,7 +277,20 @@ export default function Dashboard() {
                 <h3 className="font-bold text-xl flex items-center gap-2 drop-shadow">
                   <MapPin size={20} /> {weather.location}
                 </h3>
-                <span className={`${risk.color} px-3 py-1 rounded-full text-xs font-bold`}>{risk.emoji} Pest Risk: {risk.level}</span>
+                <div className="flex flex-col items-end gap-2">
+                  <span className={`${risk.color} px-3 py-1 rounded-full text-xs font-bold shadow-sm`}>{risk.emoji} Pest Risk: {risk.level}</span>
+                  {!weather.loading && (
+                    <span className={`px-3 py-1 rounded-full text-xs font-bold shadow-sm ${
+                      weather.wind < 10 && weather.rainProb < 30 ? 'bg-green-100 text-green-800' :
+                      weather.wind > 15 || weather.rainProb > 60 ? 'bg-red-100 text-red-800' :
+                      'bg-yellow-100 text-yellow-800'
+                    }`}>
+                      {weather.wind < 10 && weather.rainProb < 30 ? '✅ Safe to Spray' :
+                       weather.wind > 15 || weather.rainProb > 60 ? '🚫 Do Not Spray Today' :
+                       '⚠️ Spray with Caution'}
+                    </span>
+                  )}
+                </div>
               </div>
               <div className="grid grid-cols-3 gap-6">
                 <div>
@@ -317,11 +335,16 @@ export default function Dashboard() {
         {/* IoT Sensor Card */}
         <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
           <h3 className="font-bold text-gray-800 mb-4 flex items-center gap-2">📡 IoT Sensor Data</h3>
-          <div className="grid grid-cols-1 gap-4">
+          <div className="grid grid-cols-2 gap-4">
             <div className="bg-blue-50 rounded-xl p-4 text-center flex flex-col justify-center items-center h-full">
               <Droplets size={28} className="text-blue-500 mb-2" />
-              <p className="text-2xl font-bold text-blue-600">{iotData ? `${iotData.moisture}%` : "--"}</p>
+              <p className="text-2xl font-bold text-blue-600">{iotData && iotData.moisture != null ? `${iotData.moisture}%` : "--"}</p>
               <p className="text-sm font-medium text-gray-600 mt-1">Soil Moisture Level</p>
+            </div>
+            <div className="bg-orange-50 rounded-xl p-4 text-center flex flex-col justify-center items-center h-full">
+              <Bug size={28} className="text-orange-500 mb-2" />
+              <p className="text-2xl font-bold text-orange-600">{iotData && iotData.bugs != null ? iotData.bugs : "--"}</p>
+              <p className="text-sm font-medium text-gray-600 mt-1">Bug/Pest Trap Count</p>
             </div>
           </div>
         </div>

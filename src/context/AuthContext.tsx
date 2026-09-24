@@ -38,22 +38,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = async (mode: 'signin' | 'signup', name: string, phone: string, password?: string) => {
     try {
-      // Demo Hackathon Backdoors for Admin & Officer
-      if (phone === '9999999999' && password === 'admin123') {
-         const adminUser = { id: '00000000-0000-0000-0000-000000000001', name: 'State Admin', phone: '9999999999', role: 'ADMIN', location: 'Gujarat' };
-         setUser(adminUser);
-         localStorage.setItem("krushi_user", JSON.stringify(adminUser));
-         return adminUser;
-      }
-      
-      if (phone === '8888888888' && password === 'officer123') {
-         const officerUser = { id: '00000000-0000-0000-0000-000000000002', name: 'Field Officer', phone: '8888888888', role: 'OFFICER', location: 'Rajkot' };
-         setUser(officerUser);
-         localStorage.setItem("krushi_user", JSON.stringify(officerUser));
-         return officerUser;
-      }
 
-      
       // Check if it's a locally created mock officer
       const mockOfficers = JSON.parse(localStorage.getItem('mock_officers') || '[]');
       const foundMock = mockOfficers.find((o:any) => o.phone === phone && o.password === password);

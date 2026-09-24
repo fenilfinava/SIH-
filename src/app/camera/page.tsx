@@ -35,12 +35,38 @@ export default function CameraPage() {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [reportId, setReportId] = useState<string | null>(null);
-  const [result, setResult] = useState<any>(null);
-  const [escalated, setEscalated] = useState(false);
+  const [farms, setFarms] = useState<any[]>([]);
+  const [weatherWind, setWeatherWind] = useState<number>(0);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  useEffect(() => {
+    async function loadFarms() {
+      if (user) {
+        try {
+          const { data } = await supabase.from('farms').eq('user_id', user.id);
+          if (data) setFarms(data);
+        } catch (e) { console.error(e); }
+      }
+    }
+    loadFarms();
+  }, [user]);
+
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(async (pos) => {
+        try {
+          const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${pos.coords.latitude}&longitude=${pos.coords.longitude}&current=wind_speed_10m`);
+          const data = await res.json();
+          if (data.current) {
+            setWeatherWind(Math.round(data.current.wind_speed_10m));
+          }
+        } catch (e) { console.error(e); }
+      });
+    }
+  }, []);
 
   const playAudio = async (text: string) => {
     try {
@@ -149,7 +175,7 @@ export default function CameraPage() {
               const inserted = await supabase.from('disease_reports').insert({
                 farmer_id: user.id,
                 farmer_name: user.name,
-                crop: "Detected Crop",
+                crop: diseaseName ? (data.crop_name || 'Unknown') : 'Unknown',
                 ai_disease: diseaseName,
                 confidence_score: Math.round(confidence * 100),
                 lat: lat || null,
@@ -193,8 +219,8 @@ export default function CameraPage() {
     }
   };
 
-  const communityCount = Math.floor(Math.random() * 15 + 5);
-  const communitySuccess = Math.floor(Math.random() * 30 + 65);
+  const communityCount = result ? Math.round(result.confidence * 20 + 3) : 0;
+  const communitySuccess = result ? Math.round(result.confidence * 15 + 70) : 0;
 
   return (
     <div className="p-4 flex flex-col min-h-[calc(100vh-140px)]">
@@ -207,13 +233,6 @@ export default function CameraPage() {
             <div className="h-64 w-full relative bg-gray-100">
               <div className="relative w-full h-full">
                 <img src={previewUrl} alt="Crop preview" className="w-full h-full object-contain" />
-                {result && (
-                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                    <div className="w-1/2 h-1/2 border-2 border-dashed border-red-500 bg-red-500/20 rounded-lg animate-pulse flex items-start justify-end p-1 shadow-[0_0_15px_rgba(239,68,68,0.5)]">
-                      <span className="bg-red-500 text-white text-[10px] font-bold px-1 rounded shadow-md backdrop-blur-sm">Detected Area</span>
-                    </div>
-                  </div>
-                )}
               </div>
             </div>
             
@@ -242,6 +261,15 @@ export default function CameraPage() {
                       </span>
                       <h3 className="font-bold text-lg text-red-800">{result.disease}</h3>
                       <p className="text-sm opacity-80 mt-1 text-red-800">Confidence: {(result.confidence * 100).toFixed(1)}%</p>
+                      
+                      {/* Severity Scale */}
+                      {result.confidence * 100 > 85 ? (
+                        <div className="mt-2 text-xs font-bold text-red-700 bg-red-100 px-2 py-1 rounded inline-block">🔴 Severe - Immediate Action Required</div>
+                      ) : result.confidence * 100 >= 60 ? (
+                        <div className="mt-2 text-xs font-bold text-orange-700 bg-orange-100 px-2 py-1 rounded inline-block">🟠 Moderate - Monitor & Treat</div>
+                      ) : (
+                        <div className="mt-2 text-xs font-bold text-yellow-700 bg-yellow-100 px-2 py-1 rounded inline-block">🟡 Mild - Preventive Measures</div>
+                      )}
                     </div>
                     <button
                       onClick={() => playAudio(result.remedy_organic || result.advice)}
@@ -270,6 +298,30 @@ export default function CameraPage() {
                     <h3 className="font-bold text-red-800 mb-1 flex items-center gap-2">🧪 Chemical Remedy &amp; Safety:</h3>
                     <p className="text-red-700 text-sm whitespace-pre-wrap">{result.remedy_chemical || "Consult an extension officer for chemical advice."}</p>
                   </div>
+
+                  {/* Precision Dosage Calculator */}
+                  {farms.length > 0 && farms.some(f => f.area_vigha) && (
+                    <div className="p-4 bg-indigo-50 rounded-xl border border-indigo-200">
+                      <h3 className="font-bold text-indigo-800 mb-2 flex items-center gap-2">🎯 Precision Dosage for Your Farm</h3>
+                      {farms.filter(f => f.area_vigha).map((farm, idx) => {
+                        const litersNeeded = 200 * farm.area_vigha;
+                        const gramsNeeded = 3 * litersNeeded;
+                        const tanks = Math.ceil(litersNeeded / 15);
+                        return (
+                          <div key={idx} className="text-indigo-700 text-sm mb-2 pb-2 border-b border-indigo-100 last:border-0 last:mb-0 last:pb-0">
+                            <strong>{farm.farm_name}:</strong> {farm.area_vigha} units area <br />
+                            🧪 Total chemical: 3g/L × 200L/unit × {farm.area_vigha} = {gramsNeeded} grams<br />
+                            🎒 Knapsack tanks (15L): {tanks} tanks needed
+                          </div>
+                        );
+                      })}
+                      {weatherWind > 15 && (
+                        <div className="mt-2 text-red-700 font-bold text-xs bg-red-100 p-2 rounded">
+                          ⚠️ Wind speed is {weatherWind} km/h. Avoid spraying today to prevent chemical drift.
+                        </div>
+                      )}
+                    </div>
+                  )}
 
                   {/* Community Trust Signal */}
                   <div className="p-3 bg-blue-50 rounded-xl border border-blue-200">

@@ -18,16 +18,6 @@ const fileToBase64 = (file: File): Promise<string> => {
 };
 
 
-  const handleConsultOfficer = async () => {
-    if (!reportId) return;
-    try {
-      await supabase.from('disease_reports').eq('id', reportId).update({ status: 'pending', officer_notes: 'Requested Manual Verification by Farmer' });
-      alert(language === 'en' ? 'Sent to Officer Successfully!' : 'કૃષિ અધિકારીને સફળતાપૂર્વક મોકલી દેવાયું છે!');
-    } catch (e) {
-      console.error(e);
-    }
-  };
-
 export default function CameraPage() {
   const { t, language } = useLanguage();
   const { user } = useAuth();
@@ -41,6 +31,16 @@ export default function CameraPage() {
   
   const fileInputRef = useRef<HTMLInputElement>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  const handleConsultOfficer = async () => {
+    if (!reportId) return;
+    try {
+      await supabase.from('disease_reports').eq('id', reportId).update({ status: 'pending', officer_notes: 'Requested Manual Verification by Farmer' });
+      alert(language === 'en' ? 'Sent to Officer Successfully!' : 'કૃષિ અધિકારીને સફળતાપૂર્વક મોકલી દેવાયું છે!');
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   useEffect(() => {
     async function loadFarms() {

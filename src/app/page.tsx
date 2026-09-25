@@ -272,7 +272,7 @@ export default function Dashboard() {
               </li>
             ))}
           </ul>
-          <p className="text-[10px] text-gray-400 text-center mt-2 italic">Alerts moved to the Bell icon 🔔</p>
+          
         </div>
       )}
 

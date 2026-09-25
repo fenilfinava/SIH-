@@ -18,7 +18,7 @@ export async function POST(req: Request) {
 Keep the exact same array structure. Return ONLY valid JSON array of strings, nothing else. No markdown formatting.
 Texts to translate: ${JSON.stringify(texts)}`;
 
-    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${GEMINI_API_KEY}`;
     
     const response = await fetch(geminiUrl, {
       method: "POST",

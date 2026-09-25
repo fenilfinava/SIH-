@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/context/AuthContext';
@@ -28,6 +28,8 @@ export default function CameraPage() {
   const [farms, setFarms] = useState<any[]>([]);
   const [weatherWind, setWeatherWind] = useState<number>(0);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [result, setResult] = useState<any>(null);
+  const [escalated, setEscalated] = useState(false);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);

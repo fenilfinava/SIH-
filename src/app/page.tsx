@@ -35,7 +35,18 @@ export default function Dashboard() {
   const { user, isLoading: authLoading } = useAuth();
   const router = useRouter();
 
+
+
+
   const [bulletins, setBulletins] = useState<any[]>([]);
+  const [showToast, setShowToast] = useState(true);
+
+  useEffect(() => {
+    if (bulletins.length > 0) {
+      const timer = setTimeout(() => setShowToast(false), 6000);
+      return () => clearTimeout(timer);
+    }
+  }, [bulletins]);
   const [iotData, setIotData] = useState<{ moisture: number; bugs: number } | null>(null);
   const [localHistory, setLocalHistory] = useState<any[]>([]);
   const [weather, setWeather] = useState({
@@ -246,17 +257,22 @@ export default function Dashboard() {
       )}
 
       {/* Officer Bulletins */}
-      {bulletins.length > 0 && (
-        <div className="bg-red-50 border border-red-200 rounded-2xl p-4">
-          <h3 className="font-bold text-red-800 flex items-center gap-2 mb-2">🚨 Officer Alerts</h3>
-          <ul className="space-y-2">
+      {/* Floating Alert Toast */}
+      {bulletins.length > 0 && showToast && (
+        <div className="fixed top-24 left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-md bg-white border-l-4 border-red-500 rounded-xl p-4 shadow-2xl animate-in slide-in-from-top-10 fade-in duration-500">
+          <div className="flex justify-between items-start mb-2">
+            <h3 className="font-bold text-red-600 flex items-center gap-2">🚨 Officer Alerts</h3>
+            <button onClick={() => setShowToast(false)} className="text-gray-400 hover:text-gray-600">✕</button>
+          </div>
+          <ul className="space-y-2 max-h-32 overflow-y-auto">
             {bulletins.map((b, i) => (
-              <li key={i} className="text-red-700 text-sm flex items-start gap-2">
-                <span className="mt-1">🔹</span>
-                {b.message} <span className="text-xs opacity-50 ml-2">({b.region})</span>
+              <li key={i} className="text-gray-700 text-sm flex items-start gap-2 border-b border-gray-50 pb-1">
+                <span className="mt-1 text-red-500">🔹</span>
+                <span>{b.message} <span className="text-xs font-bold text-gray-400 ml-1">({b.region})</span></span>
               </li>
             ))}
           </ul>
+          <p className="text-[10px] text-gray-400 text-center mt-2 italic">Alerts moved to the Bell icon 🔔</p>
         </div>
       )}
 

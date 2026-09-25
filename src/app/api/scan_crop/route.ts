@@ -46,8 +46,9 @@ STRICTLY return the response in this exact JSON format (do NOT wrap in markdown 
     });
 
     if (!res.ok) {
-      console.error(await res.text());
-      return NextResponse.json({ error: 'Failed to analyze image' }, { status: 500 });
+      const errText = await res.text();
+      console.error(errText);
+      return NextResponse.json({ error: 'Google API Error: ' + errText }, { status: 500 });
     }
 
     const data = await res.json();

@@ -77,7 +77,7 @@ Available actions:
     if (!response.ok) {
       const errorText = await response.text();
       console.error(`Gemini API Error: ${response.status} - ${errorText}`);
-      throw new Error(`Gemini API Error: ${response.status} - ${errorText}`);
+      throw new Error(`Google API: ${errorText}`);
     }
 
     const data = await response.json();

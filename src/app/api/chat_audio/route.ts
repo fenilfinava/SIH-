@@ -7,7 +7,7 @@ export async function POST(req: Request) {
     const body = await req.json();
     const base64Audio = body.audio;
     const lang = body.lang || 'gu';
-    const mimeType = body.mimeType || 'audio/webm';
+    const mimeType = (body.mimeType || 'audio/webm').split(';')[0];
     
     if (!base64Audio) throw new Error("No audio provided");
 
@@ -50,14 +50,12 @@ Available actions:
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        system_instruction: {
-          parts: [{ text: systemPrompt }]
-        },
         contents: [{
           parts: [
+            { text: systemPrompt },
             {
-              inlineData: {
-                mimeType: mimeType,
+              inline_data: {
+                mime_type: mimeType,
                 data: base64Audio
               }
             }
